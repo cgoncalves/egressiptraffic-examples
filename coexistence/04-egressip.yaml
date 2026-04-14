@@ -1,0 +1,32 @@
+# EgressIP with trafficSelector: routes only 192.168.250.0/24 via secondary interface
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-destination
+spec:
+  egressIPs:
+  - "192.168.150.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo-coexist
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: net1
+---
+# Default EgressIP without trafficSelector: catches all other traffic via primary interface
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-default
+spec:
+  egressIPs:
+  - "172.18.0.100"
+  namespaceSelector:
+    matchLabels:
+      env: demo-coexist
+  podSelector:
+    matchLabels:
+      app: demo

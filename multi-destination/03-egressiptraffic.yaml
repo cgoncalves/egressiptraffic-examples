@@ -1,0 +1,10 @@
+apiVersion: k8s.ovn.org/v1
+kind: EgressIPTraffic
+metadata:
+  name: eipt-multi
+  labels:
+    traffic-group: multi-net
+spec:
+  destinationNetworks:
+  - "192.168.250.0/24"
+  - "192.168.251.0/24"

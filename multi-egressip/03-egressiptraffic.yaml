@@ -1,0 +1,20 @@
+# Two separate EgressIPTraffic resources, each for a different destination network
+apiVersion: k8s.ovn.org/v1
+kind: EgressIPTraffic
+metadata:
+  name: eipt-net1
+  labels:
+    traffic-group: net1
+spec:
+  destinationNetworks:
+  - "192.168.250.0/24"
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIPTraffic
+metadata:
+  name: eipt-net2
+  labels:
+    traffic-group: net2
+spec:
+  destinationNetworks:
+  - "192.168.251.0/24"

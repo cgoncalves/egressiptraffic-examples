@@ -1,0 +1,35 @@
+# Two EgressIPs with different trafficSelectors, each using a different
+# secondary host interface and egress IP address
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-net1
+spec:
+  egressIPs:
+  - "192.168.150.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo-multi-eip
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: net1
+---
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-net2
+spec:
+  egressIPs:
+  - "192.168.200.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo-multi-eip
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: net2
