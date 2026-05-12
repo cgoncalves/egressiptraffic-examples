@@ -1,0 +1,17 @@
+# EgressIPTraffic with L4 protocol/port filtering.
+# Only SIP signaling (UDP 5060) and SSH management (TCP 2222) traffic
+# to the OAM network will use the EgressIP.
+apiVersion: k8s.ovn.org/v1
+kind: EgressIPTraffic
+metadata:
+  name: eipt-oam-l4
+  labels:
+    traffic-group: oam-l4
+spec:
+  trafficMatchers:
+  - cidr: "192.168.250.0/24"
+    protocol: UDP
+    destinationPort: 5060
+  - cidr: "192.168.250.0/24"
+    protocol: TCP
+    destinationPort: 2222
