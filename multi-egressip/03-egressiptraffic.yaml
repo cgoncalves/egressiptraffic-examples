@@ -6,8 +6,8 @@ metadata:
   labels:
     traffic-group: net1
 spec:
-  destinationNetworks:
-  - "192.168.250.0/24"
+  trafficMatchers:
+  - cidr: "192.168.250.0/24"
 ---
 apiVersion: k8s.ovn.org/v1
 kind: EgressIPTraffic
@@ -16,5 +16,5 @@ metadata:
   labels:
     traffic-group: net2
 spec:
-  destinationNetworks:
-  - "192.168.251.0/24"
+  trafficMatchers:
+  - cidr: "192.168.251.0/24"

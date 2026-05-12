@@ -5,6 +5,6 @@ metadata:
   labels:
     traffic-group: multi-net
 spec:
-  destinationNetworks:
-  - "192.168.250.0/24"
-  - "192.168.251.0/24"
+  trafficMatchers:
+  - cidr: "192.168.250.0/24"
+  - cidr: "192.168.251.0/24"
