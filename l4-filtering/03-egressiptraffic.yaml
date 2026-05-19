@@ -1,5 +1,5 @@
 # EgressIPTraffic with L4 protocol/port filtering.
-# Only HTTP traffic (TCP 8080) to the OAM network will use the EgressIP.
+# Only HTTP traffic (TCP 8080) to the destination network will use the EgressIP.
 apiVersion: k8s.ovn.org/v1
 kind: EgressIPTraffic
 metadata:
@@ -8,6 +8,6 @@ metadata:
     traffic-group: oam-l4
 spec:
   trafficMatchers:
-  - cidr: "192.168.150.0/24"
+  - cidr: "192.168.250.0/24"
     protocol: TCP
     destinationPort: 8080

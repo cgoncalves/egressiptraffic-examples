@@ -1,10 +1,10 @@
 # L4 Filtering: Per-protocol/port EgressIP routing
 
-Routes only specific protocol/port traffic via the EgressIP. Traffic to the same destination CIDR on non-matching ports uses normal OVN routing.
+Routes only specific protocol/port traffic via the EgressIP. Traffic to the same destination CIDR on non-matching ports uses normal OVN routing. A router container bridges the link and destination networks, simulating a real deployment where the external server is behind a gateway.
 
 This example configures:
-- **TCP 8080** (HTTP) to `192.168.150.0/24` via EgressIP `192.168.150.101`
-- All other traffic to `192.168.150.0/24` is **not** routed via the EgressIP
+- **TCP 8080** (HTTP) to `192.168.250.0/24` (destination network) via EgressIP `192.168.150.101` (on link network)
+- All other traffic to `192.168.250.0/24` is **not** routed via the EgressIP
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ kubectl wait -n demo-eipt-l4 pod/demo-pod --for=condition=Ready --timeout=60s
 bash 06-verify.sh
 ```
 
-- TCP to `192.168.150.100:8080` should be routed via EgressIP (source `192.168.150.101`)
+- TCP to `192.168.250.100:8080` should be routed via EgressIP (source `192.168.150.101`)
 - IP rules should show `ipproto 6 dport 8080`
 - OVN LRP match should include `tcp && tcp.dst == 8080`
 

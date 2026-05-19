@@ -6,5 +6,5 @@ metadata:
     traffic-group: multi-net
 spec:
   trafficMatchers:
-  - cidr: "192.168.150.100/32"
-  - cidr: "192.168.150.200/32"
+  - cidr: "192.168.250.100/32"
+  - cidr: "192.168.250.200/32"
