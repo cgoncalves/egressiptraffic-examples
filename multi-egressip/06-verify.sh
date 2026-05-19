@@ -3,22 +3,24 @@
 # each routing to different destination networks via different interfaces.
 set -euo pipefail
 
+kubectl wait -n demo-eipt-multi-eip pod/demo-pod --for=condition=Ready --timeout=60s 2>/dev/null || true
+
 echo "=== EgressIP statuses ==="
-echo "--- eip-net1 (oam traffic to 192.168.250.0/24 via 192.168.150.101) ---"
+echo "--- eip-net1 (oam traffic to 192.168.150.0/24 via 192.168.150.101) ---"
 kubectl get egressip eip-net1 -o jsonpath='{.status}' 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(no status -- EgressIP not assigned yet)"
 echo ""
-echo "--- eip-net2 (signaling traffic to 192.168.251.0/24 via 192.168.200.101) ---"
+echo "--- eip-net2 (signaling traffic to 192.168.200.0/24 via 192.168.200.101) ---"
 kubectl get egressip eip-net2 -o jsonpath='{.status}' 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(no status -- EgressIP not assigned yet)"
 echo ""
 
-echo "=== Test 1: Traffic to 192.168.250.1 (oam destination) ==="
+echo "=== Test 1: Traffic to 192.168.150.100 (oam destination) ==="
 echo "Expected source: 192.168.150.101 (eip-net1)"
-kubectl exec -n demo-eipt-multi-eip demo-pod -- curl -s --connect-timeout 5 http://192.168.250.1:8080
+kubectl exec -n demo-eipt-multi-eip demo-pod -- curl -s --connect-timeout 5 http://192.168.150.100:8080
 echo ""
 
-echo "=== Test 2: Traffic to 192.168.251.1 (signaling destination) ==="
+echo "=== Test 2: Traffic to 192.168.200.100 (signaling destination) ==="
 echo "Expected source: 192.168.200.101 (eip-net2)"
-kubectl exec -n demo-eipt-multi-eip demo-pod -- curl -s --connect-timeout 5 http://192.168.251.1:8081
+kubectl exec -n demo-eipt-multi-eip demo-pod -- curl -s --connect-timeout 5 http://192.168.200.100:8081
 echo ""
 
 echo "=== IP rules on ovn-worker2 (priority 6000 = trafficSelector) ==="

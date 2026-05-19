@@ -2,6 +2,8 @@
 # Verify coexistence: trafficSelector EgressIP + default EgressIP on the same pod.
 set -euo pipefail
 
+kubectl wait -n demo-eipt-coexist pod/demo-pod --for=condition=Ready --timeout=60s 2>/dev/null || true
+
 echo "=== EgressIP statuses ==="
 echo "--- eip-destination (trafficSelector) ---"
 kubectl get egressip eip-destination -o jsonpath='{.status}' 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(no status -- EgressIP not assigned yet)"
@@ -10,9 +12,9 @@ echo "--- eip-default (catch-all) ---"
 kubectl get egressip eip-default -o jsonpath='{.status}' 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "(no status -- EgressIP not assigned yet)"
 echo ""
 
-echo "=== Test 1: Traffic to 192.168.250.1 (matching trafficSelector destination) ==="
+echo "=== Test 1: Traffic to 192.168.150.100 (matching trafficSelector destination) ==="
 echo "Expected source: 192.168.150.101 (destination-specific EgressIP)"
-kubectl exec -n demo-eipt-coexist demo-pod -- curl -s --connect-timeout 5 http://192.168.250.1:8080
+kubectl exec -n demo-eipt-coexist demo-pod -- curl -s --connect-timeout 5 http://192.168.150.100:8080
 echo ""
 
 echo "=== OVN LRP priorities ==="

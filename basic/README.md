@@ -1,6 +1,6 @@
 # Basic: Single destination routing via EgressIPTraffic
 
-Routes pod traffic to `192.168.250.0/24` through EgressIP `192.168.150.101` on a secondary host interface. Traffic to other destinations uses normal OVN routing.
+Routes pod traffic to `192.168.150.0/24` (OAM network) through EgressIP `192.168.150.101`. An external server on a Docker network simulates the OAM destination.
 
 ## Setup
 
@@ -20,8 +20,7 @@ kubectl wait -n demo-eipt pod/demo-pod --for=condition=Ready --timeout=60s
 bash 06-verify.sh
 ```
 
-- Traffic to `192.168.250.1:8080` should show source `192.168.150.101`
-- Traffic to `192.168.150.2:8080` should show the node IP (not the EgressIP)
+- Traffic to `192.168.150.100:8080` should show source `192.168.150.101` (EgressIP)
 
 ## Cleanup
 

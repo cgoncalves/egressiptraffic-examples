@@ -3,9 +3,8 @@
 Routes only specific protocol/port traffic via the EgressIP. Traffic to the same destination CIDR on non-matching ports uses normal OVN routing.
 
 This example configures:
-- **UDP 5060** (SIP signaling) to `192.168.250.0/24` via EgressIP `192.168.150.101`
-- **TCP 2222** (SSH management) to `192.168.250.0/24` via EgressIP `192.168.150.101`
-- All other traffic to `192.168.250.0/24` (e.g., HTTP on port 8080) is **not** routed via the EgressIP
+- **TCP 8080** (HTTP) to `192.168.150.0/24` via EgressIP `192.168.150.101`
+- All other traffic to `192.168.150.0/24` is **not** routed via the EgressIP
 
 ## Prerequisites
 
@@ -29,10 +28,9 @@ kubectl wait -n demo-eipt-l4 pod/demo-pod --for=condition=Ready --timeout=60s
 bash 06-verify.sh
 ```
 
-- TCP to port 2222 should be routed via EgressIP (source `192.168.150.101`)
-- HTTP to port 8080 should NOT be routed via EgressIP (non-matching port)
-- IP rules should show `ipproto` and `dport` fields
-- OVN LRP match should include `tcp && tcp.dst == 2222` and `udp && udp.dst == 5060`
+- TCP to `192.168.150.100:8080` should be routed via EgressIP (source `192.168.150.101`)
+- IP rules should show `ipproto 6 dport 8080`
+- OVN LRP match should include `tcp && tcp.dst == 8080`
 
 ## Cleanup
 

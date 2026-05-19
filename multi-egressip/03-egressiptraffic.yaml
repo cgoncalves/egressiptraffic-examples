@@ -7,7 +7,7 @@ metadata:
     traffic-group: net1
 spec:
   trafficMatchers:
-  - cidr: "192.168.250.0/24"
+  - cidr: "192.168.150.0/24"
 ---
 apiVersion: k8s.ovn.org/v1
 kind: EgressIPTraffic
@@ -17,4 +17,4 @@ metadata:
     traffic-group: net2
 spec:
   trafficMatchers:
-  - cidr: "192.168.251.0/24"
+  - cidr: "192.168.200.0/24"

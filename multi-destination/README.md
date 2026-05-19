@@ -1,6 +1,6 @@
-# Multi-destination: One EgressIP routing to multiple destination networks
+# Multi-destination: One EgressIP routing to multiple destinations
 
-A single EgressIPTraffic with two destination CIDRs (`192.168.250.0/24` and `192.168.251.0/24`). Both are routed through the same EgressIP `192.168.150.101` on a secondary host interface.
+A single EgressIPTraffic with two destination host CIDRs (`192.168.150.100/32` and `192.168.150.200/32`). Both are routed through the same EgressIP `192.168.150.101` on the OAM Docker network.
 
 ## Setup
 
@@ -20,10 +20,9 @@ kubectl wait -n demo-eipt-multi pod/demo-pod --for=condition=Ready --timeout=60s
 bash 06-verify.sh
 ```
 
-- Traffic to `192.168.250.1:8080` should show source `192.168.150.101`
-- Traffic to `192.168.251.1:8081` should show source `192.168.150.101`
-- Traffic to `192.168.150.2:8080` should show the node IP
-- The routing table should have destination routes for both CIDRs (no default route)
+- Traffic to `192.168.150.100:8080` should show source `192.168.150.101`
+- Traffic to `192.168.150.200:8081` should show source `192.168.150.101`
+- IP rules should show both `/32` destination entries
 
 ## Cleanup
 
