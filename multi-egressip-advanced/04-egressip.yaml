@@ -1,0 +1,51 @@
+# EgressIP 1: Catch-all (no trafficSelector) — handles all non-matching traffic
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-default
+spec:
+  egressIPs:
+  - "172.18.0.100"
+  namespaceSelector:
+    matchLabels:
+      env: demo-advanced
+  podSelector:
+    matchLabels:
+      app: demo
+---
+# EgressIP 2: L4-filtered — UDP 5060 (SIP) to OAM network via ovn-worker2
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-sip
+spec:
+  egressIPs:
+  - "192.168.150.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo-advanced
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: sip
+---
+# EgressIP 3: CIDR-filtered with 2 IPs — load-balanced across ovn-worker2 + ovn-worker3
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-signaling
+spec:
+  egressIPs:
+  - "192.168.200.101"
+  - "192.168.200.201"
+  namespaceSelector:
+    matchLabels:
+      env: demo-advanced
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: signaling
