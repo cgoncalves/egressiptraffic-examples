@@ -37,14 +37,18 @@ else
 fi
 
 echo ""
+echo "=== Test 3: Traffic to 172.18.0.200 uses catch-all EgressIP ==="
+src=$(kubectl exec -n demo-eipt-coexist demo-pod -- curl -s --connect-timeout 5 http://172.18.0.200:9090 2>/dev/null | grep -oP 'client=\K[0-9.]+')
+if [ "$src" = "172.18.0.100" ]; then
+    PASS "Non-matching traffic uses catch-all EgressIP (source: $src)"
+else
+    FAIL "Expected source 172.18.0.100 (catch-all EgressIP), got: ${src:-timeout}"
+fi
+
+echo ""
 echo "=== Node-side state on ovn-worker2 ==="
 echo "--- iptables SNAT rules ---"
 docker exec ovn-worker2 iptables -t nat -S OVN-KUBE-EGRESS-IP-MULTI-NIC 2>/dev/null | grep "192.168.150.101" || echo "(none)"
-
-echo ""
-echo "NOTE: The default EgressIP (172.18.0.100) SNAT can only be verified for traffic"
-echo "leaving the cluster L2 segment. In a kind cluster, all nodes share the same network,"
-echo "so intra-cluster traffic bypasses the gateway router where SNAT is applied."
 
 echo ""
 if [ $FAILURES -eq 0 ]; then

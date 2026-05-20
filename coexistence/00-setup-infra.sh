@@ -29,7 +29,7 @@ set -euo pipefail
 EGRESS_NODE="ovn-worker2"
 
 echo "=== Cleaning up previous state ==="
-docker rm -f oam-router 2>/dev/null || true
+docker rm -f oam-router ext-server 2>/dev/null || true
 docker network disconnect oam-link-net "${EGRESS_NODE}" 2>/dev/null || true
 docker network rm oam-link-net 2>/dev/null || true
 
@@ -75,6 +75,26 @@ PYEOF
         sleep infinity
     '
 
+echo "=== Starting external server on kind network (for catch-all EgressIP verification) ==="
+# This server is on the kind Docker network (172.18.0.0/16) at a free IP.
+# Traffic from the pod to this server does NOT match the trafficSelector EgressIP,
+# so it uses the catch-all EgressIP (172.18.0.100) via the OVN gateway router.
+KINDNET=$(docker network ls --filter name=kind --format '{{.Name}}')
+docker run -d --name ext-server --network "${KINDNET}" --ip 172.18.0.200 \
+    registry.access.redhat.com/ubi9/ubi python3 -c "
+import http.server, socketserver
+class H(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(('client=' + self.client_address[0] + '\n').encode())
+    def log_message(self, fmt, *args):
+        pass
+with socketserver.TCPServer(('', 9090), H) as s:
+    s.serve_forever()
+"
+
 echo "=== Connecting egress node to link network ==="
 docker network connect oam-link-net "${EGRESS_NODE}"
 docker exec "${EGRESS_NODE}" ip route add 192.168.250.0/24 via 192.168.150.1 2>/dev/null || true
@@ -90,3 +110,4 @@ echo "Router:         192.168.150.1 (oam-router container)"
 echo "Dest network:   192.168.250.0/24 (netns inside oam-router, server: 192.168.250.100:8080)"
 echo "EgressIP (trafficSelector): 192.168.150.101"
 echo "EgressIP (catch-all):       172.18.0.100"
+echo "External server:  172.18.0.200:9090 (on kind network, for catch-all verification)"

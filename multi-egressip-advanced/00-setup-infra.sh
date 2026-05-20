@@ -56,7 +56,7 @@ if ! docker inspect "${EGRESS_NODE2}" &>/dev/null; then
 fi
 
 echo "=== Cleaning up previous state ==="
-docker rm -f oam-router sig-router 2>/dev/null || true
+docker rm -f oam-router sig-router ext-server 2>/dev/null || true
 docker network disconnect oam-link-net "${EGRESS_NODE1}" 2>/dev/null || true
 docker network disconnect sig-link-net "${EGRESS_NODE1}" 2>/dev/null || true
 docker network disconnect sig-link-net "${EGRESS_NODE2}" 2>/dev/null || true
@@ -154,6 +154,23 @@ docker network connect sig-link-net "${EGRESS_NODE2}"
 docker exec "${EGRESS_NODE1}" ip route add 192.168.251.0/24 via 192.168.200.1 2>/dev/null || true
 docker exec "${EGRESS_NODE2}" ip route add 192.168.251.0/24 via 192.168.200.1 2>/dev/null || true
 
+echo "=== Starting external server on kind network (for catch-all EgressIP verification) ==="
+KINDNET=$(docker network ls --filter name=kind --format '{{.Name}}')
+docker run -d --name ext-server --network "${KINDNET}" --ip 172.18.0.200 \
+    registry.access.redhat.com/ubi9/ubi python3 -c "
+import http.server, socketserver
+class H(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(('client=' + self.client_address[0] + '\n').encode())
+    def log_message(self, fmt, *args):
+        pass
+with socketserver.TCPServer(('', 9090), H) as s:
+    s.serve_forever()
+"
+
 sleep 3
 echo "=== Verifying ==="
 docker exec oam-router curl -s --connect-timeout 2 http://192.168.250.100:8080 || echo "WARNING: oam-router cannot reach server"
@@ -174,3 +191,4 @@ echo "  Dest:     192.168.251.0/24 (netns inside sig-router, server: 192.168.251
 echo "  EgressIPs: 192.168.200.101 (${EGRESS_NODE1}), 192.168.200.201 (${EGRESS_NODE2})"
 echo ""
 echo "Catch-all EgressIP: 172.18.0.100 (primary kind network)"
+echo "External server:  172.18.0.200:9090 (on kind network, for catch-all verification)"

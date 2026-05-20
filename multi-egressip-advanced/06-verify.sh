@@ -61,6 +61,15 @@ else
 fi
 
 echo ""
+echo "=== Test 4: Traffic to 172.18.0.200 uses catch-all EgressIP ==="
+src=$(kubectl exec -n ${NS} ${POD} -- curl -s --connect-timeout 5 http://172.18.0.200:9090 2>/dev/null | grep -oP 'client=\K[0-9.]+')
+if [ "$src" = "172.18.0.100" ]; then
+    PASS "Non-matching traffic uses catch-all EgressIP (source: $src)"
+else
+    FAIL "Expected source 172.18.0.100 (catch-all EgressIP), got: ${src:-timeout}"
+fi
+
+echo ""
 echo "=== Node-side IP rules ==="
 echo "--- ovn-worker2 ---"
 docker exec ovn-worker2 ip rule show | grep -E "600[01]" || echo "(none)"
