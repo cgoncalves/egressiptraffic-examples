@@ -17,6 +17,7 @@ Example use cases for the **EgressIPTraffic** feature in [ovn-kubernetes](https:
 | [multi-egressip/](multi-egressip/) | Two trafficSelector EgressIPs on the same pod, each routing to different destination networks via different interfaces |
 | [l4-filtering/](l4-filtering/) | L4 protocol/port filtering: only TCP traffic on a specific port uses the EgressIP |
 | [multi-egressip-advanced/](multi-egressip-advanced/) | Three coexisting EgressIPs: catch-all + L4-filtered + CIDR-filtered with load balancing across two egress nodes (requires 3 worker nodes) |
+| [on-link/](on-link/) | Destination on the same L2 as the EgressIP interface — validates SNAT works for on-link traffic |
 | [secondary-catchall/](secondary-catchall/) | Catch-all EgressIP on a secondary host interface routing all pod traffic |
 
 ## Prerequisites
@@ -45,4 +46,4 @@ The use cases share EgressIP addresses, so only one can be active at a time.
 
 ## Infrastructure Pattern
 
-Each example uses Docker link networks for EgressIP interfaces and router containers with internal netns-based destination servers on separate L2 segments. This simulates real deployments where external servers are behind gateways, not on the same network as the EgressIP.
+Most examples use Docker link networks for EgressIP interfaces and router containers with internal netns-based destination servers on separate L2 segments. This simulates real deployments where external servers are behind gateways. The `on-link/` example is the exception — it places the destination server directly on the link network to validate SNAT for on-link traffic.

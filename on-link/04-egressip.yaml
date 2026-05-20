@@ -1,0 +1,16 @@
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-net1
+spec:
+  egressIPs:
+  - "192.168.150.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo
+  podSelector:
+    matchLabels:
+      app: demo
+  trafficSelector:
+    matchLabels:
+      traffic-group: net1
