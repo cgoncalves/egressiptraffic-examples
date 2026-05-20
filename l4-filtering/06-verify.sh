@@ -21,6 +21,15 @@ else
 fi
 
 echo ""
+echo "=== Test 2: TCP to 192.168.250.100:9999 (non-matching port, same CIDR) ==="
+echo "Expected: should NOT be routed via EgressIP (port 9999 not in L4 filter)"
+if ! kubectl exec -n demo-eipt-l4 demo-pod -- curl -s --connect-timeout 5 http://192.168.250.100:9999 2>/dev/null; then
+    PASS "Traffic to non-matching port is NOT routed via EgressIP (connection failed as expected)"
+else
+    FAIL "Traffic to non-matching port should have failed but succeeded"
+fi
+
+echo ""
 echo "=== Node-side state on ovn-worker2 ==="
 echo "--- IP rules (priority 6000 with ipproto/dport) ---"
 docker exec ovn-worker2 ip rule show | grep -E "6000" || echo "(none)"
