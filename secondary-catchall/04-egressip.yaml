@@ -1,0 +1,15 @@
+# Catch-all EgressIP on secondary host interface (no trafficSelector).
+# Handles ALL traffic from the pod via the secondary interface.
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  name: eip-default
+spec:
+  egressIPs:
+  - "192.168.150.101"
+  namespaceSelector:
+    matchLabels:
+      env: demo-secondary
+  podSelector:
+    matchLabels:
+      app: demo
